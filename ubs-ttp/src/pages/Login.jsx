@@ -44,6 +44,11 @@ export default function Login() {
         localStorage.setItem("token", data.token);
         localStorage.setItem("userId", data.user.id);
         localStorage.setItem("userName", data.user.name); // Store user's name
+        localStorage.setItem("careerStage", data.user.careerStage);
+        localStorage.setItem("skills", JSON.stringify(data.user.currentSkills));
+        localStorage.setItem("availability", data.user.timeAvailability.toString());
+        localStorage.setItem("goals", data.user.learningGoals);
+        localStorage.setItem("interests", JSON.stringify(data.user.areasOfInterest));
         navigate("/home");
       } else {
         const error = await response.json();
