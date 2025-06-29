@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Typography, Container, CircularProgress, Box } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const userName = localStorage.getItem('userName');
@@ -7,6 +8,7 @@ const Home = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log("Current interests:", interests); 
@@ -48,9 +50,9 @@ const Home = () => {
         }
 
         const data = await response.json();
-        if (data.recommendations) {
-          setCourses(data.recommendations);
-          localStorage.setItem(cacheKey, JSON.stringify(data.recommendations));
+        if (data.recommendedCourses) {
+          setCourses(data.recommendedCourses);
+          localStorage.setItem(cacheKey, JSON.stringify(data.recommendedCourses));
         } else {
           setCourses([]);
         }
@@ -98,9 +100,20 @@ const Home = () => {
         </Typography>
       ) : (
         <Box>
-          {courses.map((course, index) => (
-            <Box key={index} mb={2} p={2} border={1} borderColor="grey.300" borderRadius={2}>
-              <Typography variant="h6">{course.title}</Typography>
+          {courses.map((course) => (
+            <Box
+              key={course.id}
+              mb={2}
+              p={2}
+              border={1}
+              borderColor="grey.300"
+              borderRadius={2}
+              sx={{ cursor: 'pointer' }}
+              onClick={() => navigate(`/courses/${course.id}`)}
+            >
+              <Typography variant="h6" color="primary">
+                {course.title}
+              </Typography>
               <Typography variant="body2" color="text.secondary">
                 {course.description}
               </Typography>
