@@ -48,9 +48,9 @@ const Home = () => {
         }
 
         const data = await response.json();
-        if (data.recommendations) {
-          setCourses(data.recommendations);
-          localStorage.setItem(cacheKey, JSON.stringify(data.recommendations));
+        if (data.recommendedCourses) {
+          setCourses(data.recommendedCourses);
+          localStorage.setItem(cacheKey, JSON.stringify(data.recommendedCourses));
         } else {
           setCourses([]);
         }
