@@ -6,6 +6,7 @@ import StarIcon from '@mui/icons-material/Star';
 import PeopleIcon from '@mui/icons-material/People';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 
 const CourseDetails = () => {
@@ -80,9 +81,25 @@ const CourseDetails = () => {
 
   return (
     <Container maxWidth="md" sx={{ py: 5 }}>
-      <Typography variant="h4" gutterBottom>
-        {course.title}
-      </Typography>
+      <Box mb={2}>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBackIcon />}
+          onClick={() => window.location.href = '/home'}
+          sx={{ mb: 3, borderColor: 'primary.main', color: 'primary.main' }}
+        >
+          Back to Home
+        </Button>
+
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h4" gutterBottom>
+            {course.title}
+          </Typography>
+          <Button variant="contained" size="large">
+            Enroll Now
+          </Button>
+        </Box>
+      </Box>
       <Typography mb={2}>{course.description}</Typography>
 
       <Stack direction="row" spacing={1} mb={2}>
@@ -92,16 +109,16 @@ const CourseDetails = () => {
       </Stack>
 
       <Stack direction="row" spacing={3} mb={4}>
-        <Typography>
-          <StarIcon sx={{ mr: 0.5 }} /> {course.rating || 'N/A'} rating
+      <Typography sx={{ display: 'flex'}}>
+          <StarIcon sx={{ mr: 0.5 }} /> {course.rating || '4.5'} rating
+        </Typography >
+        <Typography sx={{ display: 'flex'}}>
+          <PeopleIcon sx={{ mr: 0.5 }} /> {course.students || '923'} students
         </Typography>
-        <Typography>
-          <PeopleIcon sx={{ mr: 0.5 }} /> {course.students || 'N/A'} students
+        <Typography sx={{ display: 'flex'}}>
+          <AccessTimeIcon sx={{ mr: 0.5 }} /> {course.duration || '3 hours'}
         </Typography>
-        <Typography>
-          <AccessTimeIcon sx={{ mr: 0.5 }} /> {course.duration || 'N/A'}
-        </Typography>
-        <Typography>
+        <Typography sx={{ display: 'flex'}}>
           <MenuBookIcon sx={{ mr: 0.5 }} />{' '}
           {course.lessons ||
             (course.sections
@@ -207,12 +224,6 @@ const CourseDetails = () => {
             </AccordionDetails>
           </Accordion>
         ))}
-      </Box>
-
-      <Box textAlign="right">
-        <Button variant="contained" size="large">
-          Enroll Now
-        </Button>
       </Box>
     </Container>
   );

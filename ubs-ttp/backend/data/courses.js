@@ -6,6 +6,9 @@ const courses = [
     category: "Web Development",
     tags: ["web", "frontend", "html", "css", "javascript"],
     image: "course1.jpg",
+    rating: "4.5",
+    students: "1500",
+    duration: "10 hours",
     sections: [
       {
         title: 'HTML Foundations',
