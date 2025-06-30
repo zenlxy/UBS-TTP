@@ -1,28 +1,26 @@
-// CourseDetails.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import {
-  Container,
-  Typography,
-  Box,
-  Button,
-  Chip,
-  Stack,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-} from '@mui/material';
+import { Container, Typography, Box, Button, Chip, Stack, Accordion, AccordionSummary, AccordionDetails, RadioGroup, FormControlLabel, Radio, Alert } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import StarIcon from '@mui/icons-material/Star';
 import PeopleIcon from '@mui/icons-material/People';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 
+
 const CourseDetails = () => {
   const { id } = useParams();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // State to store user answers per lesson per question
+  // Structure: { lessonIndex: { questionIndex: selectedOptionIndex, ... }, ... }
+  const [answers, setAnswers] = useState({});
+
+  // State to store submitted results per lesson per question
+  // Structure: { lessonIndex: { questionIndex: boolean(correct/incorrect), ... }, ... }
+  const [results, setResults] = useState({});
 
   useEffect(() => {
     fetch(`http://localhost:5001/api/courses/${id}`)
@@ -39,6 +37,42 @@ const CourseDetails = () => {
         setLoading(false);
       });
   }, [id]);
+
+  const handleOptionChange = (lessonIdx, questionIdx, optionIdx) => {
+    setAnswers((prev) => ({
+      ...prev,
+      [lessonIdx]: {
+        ...prev[lessonIdx],
+        [questionIdx]: optionIdx,
+      },
+    }));
+    // Clear previous result on change
+    setResults((prev) => {
+      if (
+        prev[lessonIdx] &&
+        prev[lessonIdx][questionIdx] !== undefined
+      ) {
+        const newLessonResults = { ...prev[lessonIdx] };
+        delete newLessonResults[questionIdx];
+        return { ...prev, [lessonIdx]: newLessonResults };
+      }
+      return prev;
+    });
+  };
+
+  const handleSubmit = (lessonIdx, questionIdx, correctAnswer) => {
+    const userAnswer = answers[lessonIdx]?.[questionIdx];
+    if (userAnswer === undefined) return; // no answer selected
+
+    const isCorrect = userAnswer === correctAnswer;
+    setResults((prev) => ({
+      ...prev,
+      [lessonIdx]: {
+        ...prev[lessonIdx],
+        [questionIdx]: isCorrect,
+      },
+    }));
+  };
 
   if (loading) return <Typography>Loading...</Typography>;
   if (error) return <Typography color="error">{error}</Typography>;
@@ -81,8 +115,8 @@ const CourseDetails = () => {
         <Typography variant="h6" gutterBottom>
           Course Content
         </Typography>
-        {course.sections.map((section, idx) => (
-          <Accordion key={idx}>
+        {course.sections.map((section, sidx) => (
+          <Accordion key={sidx}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography>{section.title}</Typography>
               <Chip
@@ -92,32 +126,84 @@ const CourseDetails = () => {
               />
             </AccordionSummary>
             <AccordionDetails>
-              {section.lessons.map((lesson, lidx) => (
-                <Box key={lidx} mb={2}>
-                  <Typography variant="subtitle1" fontWeight="bold">
-                    {lesson.title} {lesson.type === 'quiz' ? '(Quiz)' : '(Video)'}
-                  </Typography>
+              {section.lessons.map((lesson, lidx) => {
+                // Calculate absolute lesson index to keep answers/results consistent across sections
+                const lessonIdx = sidx * 1000 + lidx; // just a unique id
 
-                  {lesson.type === 'video' && (
-                    <Box
-                      component="iframe"
-                      src={lesson.url}
-                      title={lesson.title}
-                      width="100%"
-                      height="315"
-                      sx={{ border: 'none', borderRadius: 1, mt: 1 }}
-                      allowFullScreen
-                    />
-                  )}
-
-                  {lesson.type === 'quiz' && (
-                    <Typography variant="body2" mt={1}>
-                      Quiz with {lesson.questions.length} question
-                      {lesson.questions.length > 1 ? 's' : ''}.
+                return (
+                  <Box key={lidx} mb={4}>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      {lesson.title}
                     </Typography>
-                  )}
-                </Box>
-              ))}
+
+                    {lesson.type === 'video' && (
+                      <Box
+                        component="iframe"
+                        src={lesson.url}
+                        title={lesson.title}
+                        width="100%"
+                        height="450px"
+                        sx={{ border: 'none', borderRadius: 1, mt: 1 }}
+                        allowFullScreen
+                      />
+                    )}
+
+                    {lesson.type === 'quiz' && (
+                      <Box mt={1} sx={{ pl: 2 }}>
+                        {lesson.questions.map((question, qidx) => {
+                          const userAnswer = answers[lessonIdx]?.[qidx];
+                          const result = results[lessonIdx]?.[qidx];
+
+                          return (
+                            <Box key={qidx} mb={3}>
+                              <Typography variant="subtitle2" fontWeight="bold">
+                                Q{qidx + 1}: {question.q}
+                              </Typography>
+                              <RadioGroup
+                                value={userAnswer !== undefined ? String(userAnswer) : ''}
+                                onChange={(e) =>
+                                  handleOptionChange(lessonIdx, qidx, Number(e.target.value))
+                                }
+                              >
+                                {question.options.map((option, oidx) => (
+                                  <FormControlLabel
+                                    key={oidx}
+                                    value={String(oidx)}
+                                    control={<Radio />}
+                                    label={option}
+                                    disabled={result === true} // disable only if answer is correct
+                                  />
+                                ))}
+                              </RadioGroup>
+
+                              <Button
+                                variant="outlined"
+                                size="small"
+                                onClick={() =>
+                                  handleSubmit(lessonIdx, qidx, question.correct)
+                                }
+                                disabled={result !== undefined || userAnswer === undefined}
+                                sx={{ mt: 1 }}
+                              >
+                                Submit Answer
+                              </Button>
+
+                              {result !== undefined && (
+                                <Alert
+                                  severity={result ? 'success' : 'error'}
+                                  sx={{ mt: 1 }}
+                                >
+                                  {result ? 'Correct!' : 'Incorrect. Try again.'}
+                                </Alert>
+                              )}
+                            </Box>
+                          );
+                        })}
+                      </Box>
+                    )}
+                  </Box>
+                );
+              })}
             </AccordionDetails>
           </Accordion>
         ))}
