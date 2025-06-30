@@ -1,5 +1,24 @@
+// Home.jsx
 import React, { useEffect, useState } from 'react';
-import { Typography, Container, CircularProgress, Box } from '@mui/material';
+import {
+  Typography,
+  Container,
+  CircularProgress,
+  Box,
+  Grid,
+  Card,
+  CardMedia,
+  CardContent,
+} from '@mui/material';
+import { Link } from 'react-router-dom';
+
+// Import images from assets
+import course1Img from '../assets/course1.jpg';
+
+// Image mapping based on filename
+const imageMap = {
+  'course1.jpg': course1Img,
+};
 
 const Home = () => {
   const userName = localStorage.getItem('userName');
@@ -9,7 +28,6 @@ const Home = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    console.log("Current interests:", interests); 
     const fetchRecommendations = async () => {
       setLoading(true);
       setError(null);
@@ -30,12 +48,10 @@ const Home = () => {
           return;
         } catch (parseError) {
           console.error('Failed to parse cached recommendations:', parseError);
-          // Fall through to fetch new data if cache is invalid
         }
       }
 
       try {
-        console.log("Sending interests to backend:", interests);
         const response = await fetch('http://localhost:5001/api/recommendation', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -55,7 +71,6 @@ const Home = () => {
           setCourses([]);
         }
       } catch (error) {
-        console.error('Failed to fetch recommendations:', error);
         setError(error.message);
       } finally {
         setLoading(false);
@@ -65,7 +80,6 @@ const Home = () => {
     fetchRecommendations();
   }, [interests]);
 
-  // Listen for changes to localStorage (e.g., from another tab)
   useEffect(() => {
     const handleStorageChange = (event) => {
       if (event.key === 'interests') {
@@ -97,16 +111,46 @@ const Home = () => {
           No recommendations available. Try adding some interests!
         </Typography>
       ) : (
-        <Box>
-          {courses.map((course, index) => (
-            <Box key={index} mb={2} p={2} border={1} borderColor="grey.300" borderRadius={2}>
-              <Typography variant="h6">{course.title}</Typography>
-              <Typography variant="body2" color="text.secondary">
-                {course.description}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
+        <Grid container spacing={3}>
+          {courses.map((course) => {
+            const imageSrc = imageMap[course.image] || '/placeholder-image.jpg';
+            return (
+              <Grid item xs={12} sm={6} md={4} key={course.id || course.title}>
+                <Link
+                  to={`/courses/${course.id}`}
+                  style={{ textDecoration: 'none' }}
+                  aria-label={`Go to details for ${course.title}`}
+                >
+                  <Card
+                    sx={{
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      cursor: 'pointer',
+                      '&:hover': { boxShadow: 6 },
+                    }}
+                  >
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={imageSrc}
+                      alt={course.title}
+                      sx={{ objectFit: 'cover' }}
+                    />
+                    <CardContent sx={{ flexGrow: 1 }}>
+                      <Typography variant="h6" gutterBottom color="textPrimary">
+                        {course.title}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        {course.description}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </Grid>
+            );
+          })}
+        </Grid>
       )}
     </Container>
   );
