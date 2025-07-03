@@ -1,15 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import { Typography, Container, CircularProgress, Box, Grid, Card, CardMedia, CardContent, Stack, IconButton, Tooltip, Avatar } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Link } from 'react-router-dom';
 
 // Import images from assets
 import course1Img from '../assets/course1.jpg';
+import course2Img from '../assets/course2.jpg';
+import course3Img from '../assets/course3.jpg';
+import course4Img from '../assets/course4.jpg';
+import course5Img from '../assets/course5.jpg';
+import course6Img from '../assets/course6.jpg';
+import course7Img from '../assets/course7.jpg';
+import course8Img from '../assets/course8.jpg';
+import course9Img from '../assets/course9.jpg';
+import course10Img from '../assets/course10.jpg';
+import course11Img from '../assets/course11.jpg';
+import course12Img from '../assets/course12.jpg';
+import course13Img from '../assets/course13.jpg';
+import course14Img from '../assets/course14.jpg';
 
 // Image mapping based on filename
 const imageMap = {
   'course1.jpg': course1Img,
+  'course2.jpg': course2Img,
+  'course3.jpg': course3Img,
+  'course4.jpg': course4Img,
+  'course5.jpg': course5Img,
+  'course6.jpg': course6Img,
+  'course7.jpg': course7Img,
+  'course8.jpg': course8Img,
+  'course9.jpg': course9Img,
+  'course10.jpg': course10Img,
+  'course11.jpg': course11Img,
+  'course12.jpg': course12Img,
+  'course13.jpg': course13Img,
+  'course14.jpg': course14Img,
 };
 
 const Home = () => {

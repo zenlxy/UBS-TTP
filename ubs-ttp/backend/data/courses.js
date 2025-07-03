@@ -75,13 +75,16 @@ const courses = [
       }
     ]
   },
-
   {
     id: 2,
     title: "Full-Stack Web Project with Node.js",
-    description: "Build and deploy a full-stack app with Express.js and MongoDB.",
+    description: "Build and deploy a full-stack website with Express.js and MongoDB.",
     category: "Web Development",
     tags: ["web", "backend", "nodejs", "express", "mongodb"],
+    image: "course2.jpg",
+    rating: "4.5",
+    students: "1500",
+    duration: "10 hours",
     sections: [
       {
         title: 'Node.js Basics',
@@ -148,13 +151,16 @@ const courses = [
       }
     ]
   },
-
   {
     id: 3,
     title: "React Native Crash Course",
     description: "Learn to build cross-platform mobile apps using React Native.",
     category: "Mobile Apps",
     tags: ["mobile", "react native", "javascript"],
+    image: "course3.jpg",
+    rating: "4.5",
+    students: "1500",
+    duration: "10 hours",
     sections: [
       {
         title: 'Getting Started with React Native',
@@ -200,13 +206,16 @@ const courses = [
       }
     ]
   },
-
   {
     id: 4,
     title: "Intro to Flutter: Build Cross-Platform Mobile Apps",
     description: "Learn how to build beautiful and fast mobile apps using Flutter and Dart.",
     category: "Mobile Apps",
     tags: ["mobile", "flutter", "cross-platform"],
+    image: "course4.jpg",
+    rating: "4.5",
+    students: "1500",
+    duration: "10 hours",
     sections: [
       {
         title: 'Flutter Basics',
@@ -252,13 +261,16 @@ const courses = [
       }
     ]
   },
-
   {
     id: 5,
     title: "Data Science with Python",
     description: "Analyze data using Pandas, NumPy, and visualization libraries.",
     category: "Data Science",
     tags: ["data", "python", "pandas", "matplotlib"],
+    image: "course5.jpg",
+    rating: "4.5",
+    students: "1500",
+    duration: "10 hours",
     sections: [
       {
         title: 'Python for Data Science',
@@ -304,13 +316,16 @@ const courses = [
       }
     ]
   },
-
   {
     id: 6,
     title: "Data Wrangling and Visualization",
     description: "Clean, transform, and visualize complex datasets using Python tools like Pandas and Seaborn.",
     category: "Data Science",
     tags: ["data cleaning", "visualization", "pandas", "seaborn"],
+    image: "course6.jpg",
+    rating: "4.2",
+    students: "521",
+    duration: "8 hours",
     sections: [
       {
         title: 'Data Cleaning',
@@ -318,7 +333,7 @@ const courses = [
           {
             type: 'video',
             title: 'Handling Missing Data with Pandas',
-            url: 'https://www.youtube.com/embed/7uJ0J2E6fKE'
+            url: 'https://www.youtube.com/embed/EaGbS7eWSs0'
           },
           {
             type: 'quiz',
@@ -356,13 +371,16 @@ const courses = [
       }
     ]
   },
-
   {
     id: 7,
     title: "Machine Learning Fundamentals",
     description: "Understand the basics of machine learning algorithms and models.",
     category: "AI/ML",
     tags: ["machine learning", "scikit-learn", "ai"],
+    image: "course7.jpg",
+    rating: "4.7",
+    students: "2500",
+    duration: "14 hours",
     sections: [
       {
         title: 'Intro to Machine Learning',
@@ -408,13 +426,16 @@ const courses = [
       }
     ]
   },
-
   {
     id: 8,
     title: "Deep Learning with TensorFlow",
     description: "Build and train deep neural networks using TensorFlow for image and text-based tasks.",
     category: "AI/ML",
     tags: ["deep learning", "tensorflow", "neural networks"],
+    image: "course8.jpg",
+    rating: "4.4",
+    students: "923",
+    duration: "9 hours",
     sections: [
       {
         title: 'TensorFlow Basics',
@@ -460,13 +481,16 @@ const courses = [
       }
     ]
   },
-
   {
     id: 9,
     title: "Intro to DevOps",
     description: "Get started with CI/CD, Docker, and cloud deployment.",
     category: "DevOps",
     tags: ["devops", "docker", "ci/cd"],
+    image: "course9.jpg",
+    rating: "4.5",
+    students: "1500",
+    duration: "10 hours",
     sections: [
       {
         title: 'DevOps Fundamentals',
@@ -519,6 +543,10 @@ const courses = [
     description: "Learn the basics of Amazon Web Services and cloud hosting.",
     category: "DevOps",
     tags: ["aws", "cloud", "infrastructure"],
+    image: "course10.jpg",
+    rating: "4.5",
+    students: "1500",
+    duration: "10 hours",
     sections: [
       {
         title: 'AWS Basics',
@@ -564,13 +592,16 @@ const courses = [
       }
     ]
   },
-
   {
     id: 11,
     title: "Foundations of Cybersecurity",
     description: "Understand common vulnerabilities and how to protect against them.",
     category: "Cybersecurity",
     tags: ["security", "vulnerabilities", "threats"],
+    image: "course11.jpg",
+    rating: "4.5",
+    students: "1500",
+    duration: "10 hours",
     sections: [
       {
         title: 'Cybersecurity Basics',
@@ -616,13 +647,16 @@ const courses = [
       }
     ]
   },
-
   {
     id: 12,
     title: "Ethical Hacking 101",
     description: "Intro to penetration testing and white-hat hacking practices.",
     category: "Cybersecurity",
     tags: ["ethical hacking", "pentesting", "network security"],
+    image: "course12.jpg",
+    rating: "4.5",
+    students: "1500",
+    duration: "10 hours",
     sections: [
       {
         title: 'Penetration Testing Basics',
@@ -668,151 +702,158 @@ const courses = [
       }
     ]
   },
-  // Course 13: UX Fundamentals
-{
-  id: 13,
-  title: "UX Fundamentals",
-  description: "Learn the basics of user experience design.",
-  category: "UX/UI Design",
-  tags: ["ux", "design thinking", "usability"],
-  sections: [
-    {
-      title: 'Introduction to UX',
-      lessons: [
-        {
-          type: 'video',
-          title: 'What is User Experience (UX)?',
-          url: 'https://www.youtube.com/embed/3qr-12N9Bcw'
-        },
-        {
-          type: 'quiz',
-          title: 'UX Basics Quiz',
-          questions: [
-            {
-              q: 'What does UX stand for?',
-              options: ['User Experience', 'User Exercise', 'User Extension'],
-              correct: 0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      title: 'Design Thinking',
-      lessons: [
-        {
-          type: 'video',
-          title: 'Introduction to Design Thinking',
-          url: 'https://www.youtube.com/embed/a7sEoEvT8l8'
-        },
-        {
-          type: 'quiz',
-          title: 'Design Thinking Quiz',
-          questions: [
-            {
-              q: 'Which phase of design thinking involves generating ideas?',
-              options: ['Empathize', 'Ideate', 'Prototype'],
-              correct: 1
-            }
-          ]
-        }
-      ]
-    },
-    {
-      title: 'Usability Principles',
-      lessons: [
-        {
-          type: 'video',
-          title: 'Basics of Usability',
-          url: 'https://www.youtube.com/embed/9B4rT57C-4I'
-        },
-        {
-          type: 'quiz',
-          title: 'Usability Quiz',
-          questions: [
-            {
-              q: 'Which of the following is NOT a usability heuristic?',
-              options: ['Visibility of system status', 'User control and freedom', 'Heavy animations'],
-              correct: 2
-            }
-          ]
-        }
-      ]
-    }
-  ]
-},
-{
-  id: 14,
-  title: "UI Design with Figma",
-  description: "Design beautiful interfaces using Figma.",
-  category: "UX/UI Design",
-  tags: ["ui", "figma", "visual design"],
-  sections: [
-    {
-      title: 'Getting Started with Figma',
-      lessons: [
-        {
-          type: 'video',
-          title: 'Figma Interface Overview',
-          url: 'https://www.youtube.com/embed/kOV-4-z6JOg'
-        },
-        {
-          type: 'quiz',
-          title: 'Figma Basics Quiz',
-          questions: [
-            {
-              q: 'What type of tool is Figma?',
-              options: ['Vector graphics editor', 'Photo editor', 'Code IDE'],
-              correct: 0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      title: 'Design Components',
-      lessons: [
-        {
-          type: 'video',
-          title: 'Working with Components in Figma',
-          url: 'https://www.youtube.com/embed/eXbM8hNBF3Q'
-        },
-        {
-          type: 'quiz',
-          title: 'Components Quiz',
-          questions: [
-            {
-              q: 'What is the purpose of components in Figma?',
-              options: ['Reuse design elements', 'Create animations', 'Export code'],
-              correct: 0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      title: 'Prototyping and Collaboration',
-      lessons: [
-        {
-          type: 'video',
-          title: 'Creating Prototypes in Figma',
-          url: 'https://www.youtube.com/embed/1wZw7HYU78g'
-        },
-        {
-          type: 'quiz',
-          title: 'Prototyping Quiz',
-          questions: [
-            {
-              q: 'Figma allows real-time collaboration?',
-              options: ['True', 'False'],
-              correct: 0
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
+  {
+    id: 13,
+    title: "UX Fundamentals",
+    description: "Learn the basics of user experience design.",
+    category: "UX/UI Design",
+    tags: ["ux", "design thinking", "usability"],
+    image: "course3.jpg",
+    rating: "4.6",
+    students: "1520",
+    duration: "10 hours",
+    sections: [
+      {
+        title: 'Introduction to UX',
+        lessons: [
+          {
+            type: 'video',
+            title: 'What is User Experience (UX)?',
+            url: 'https://www.youtube.com/embed/3qr-12N9Bcw'
+          },
+          {
+            type: 'quiz',
+            title: 'UX Basics Quiz',
+            questions: [
+              {
+                q: 'What does UX stand for?',
+                options: ['User Experience', 'User Exercise', 'User Extension'],
+                correct: 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        title: 'Design Thinking',
+        lessons: [
+          {
+            type: 'video',
+            title: 'Introduction to Design Thinking',
+            url: 'https://www.youtube.com/embed/a7sEoEvT8l8'
+          },
+          {
+            type: 'quiz',
+            title: 'Design Thinking Quiz',
+            questions: [
+              {
+                q: 'Which phase of design thinking involves generating ideas?',
+                options: ['Empathize', 'Ideate', 'Prototype'],
+                correct: 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        title: 'Usability Principles',
+        lessons: [
+          {
+            type: 'video',
+            title: 'Basics of Usability',
+            url: 'https://www.youtube.com/embed/9B4rT57C-4I'
+          },
+          {
+            type: 'quiz',
+            title: 'Usability Quiz',
+            questions: [
+              {
+                q: 'Which of the following is NOT a usability heuristic?',
+                options: ['Visibility of system status', 'User control and freedom', 'Heavy animations'],
+                correct: 2
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 14,
+    title: "UI Design with Figma",
+    description: "Design beautiful interfaces using Figma.",
+    category: "UX/UI Design",
+    tags: ["ui", "figma", "visual design"],
+    image: "course14.jpg",
+    rating: "4.7",
+    students: "3209",
+    duration: "12 hours",
+    sections: [
+      {
+        title: 'Getting Started with Figma',
+        lessons: [
+          {
+            type: 'video',
+            title: 'Figma Interface Overview',
+            url: 'https://www.youtube.com/embed/kOV-4-z6JOg'
+          },
+          {
+            type: 'quiz',
+            title: 'Figma Basics Quiz',
+            questions: [
+              {
+                q: 'What type of tool is Figma?',
+                options: ['Vector graphics editor', 'Photo editor', 'Code IDE'],
+                correct: 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        title: 'Design Components',
+        lessons: [
+          {
+            type: 'video',
+            title: 'Working with Components in Figma',
+            url: 'https://www.youtube.com/embed/eXbM8hNBF3Q'
+          },
+          {
+            type: 'quiz',
+            title: 'Components Quiz',
+            questions: [
+              {
+                q: 'What is the purpose of components in Figma?',
+                options: ['Reuse design elements', 'Create animations', 'Export code'],
+                correct: 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        title: 'Prototyping and Collaboration',
+        lessons: [
+          {
+            type: 'video',
+            title: 'Creating Prototypes in Figma',
+            url: 'https://www.youtube.com/embed/1wZw7HYU78g'
+          },
+          {
+            type: 'quiz',
+            title: 'Prototyping Quiz',
+            questions: [
+              {
+                q: 'Figma allows real-time collaboration?',
+                options: ['True', 'False'],
+                correct: 0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
 ];
 
 module.exports = courses;
