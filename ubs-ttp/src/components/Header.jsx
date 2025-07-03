@@ -1,10 +1,32 @@
-import React from 'react';
-import { AppBar, Toolbar, Typography, IconButton, Avatar, Tooltip, Box } from '@mui/material';
+import React, { useState } from 'react';
+import { AppBar, Toolbar, Typography, IconButton, Avatar, Menu, MenuItem, Tooltip, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const userName = localStorage.getItem('userName');
   const navigate = useNavigate();
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleAvatarClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleProfile = () => {
+    navigate('/profile');
+    handleClose();
+  };
+
+  const handleLogout = () => {
+    localStorage.clear(); 
+    navigate('/'); 
+    handleClose();
+  };
 
   return (
     <AppBar position="sticky" color="default" elevation={1} sx={{ bgcolor: 'white' }}>
@@ -18,13 +40,30 @@ const Header = () => {
           SheLearnsTech
         </Typography>
         <Box>
-          <Tooltip title="Profile">
-            <IconButton onClick={() => navigate('/profile')} size="large">
+          <Tooltip title="Account settings">
+            <IconButton onClick={handleAvatarClick} size="large">
               <Avatar sx={{ bgcolor: 'primary.main' }}>
                 {userName?.[0]?.toUpperCase() || 'U'}
               </Avatar>
             </IconButton>
           </Tooltip>
+          <Menu
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            onClick={handleClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
+            <MenuItem onClick={handleProfile}>My Profile</MenuItem>
+            <MenuItem onClick={handleLogout}>Log Out</MenuItem>
+          </Menu>
         </Box>
       </Toolbar>
     </AppBar>
