@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Typography, Container, CircularProgress, Box, Grid, Card, CardMedia, CardContent, Stack, IconButton, Tooltip, Avatar } from '@mui/material';
+import { Typography, Container, CircularProgress, Box, Grid, Card, CardMedia, CardContent } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Link } from 'react-router-dom';
 
 // Import images from assets
@@ -111,22 +110,13 @@ const Home = () => {
   }, []);
 
   return (
-    <Container>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mt={4} mb={2}>
-        <Box>
-          <Typography variant="h4">
-            Welcome Back{userName ? `, ${userName}` : ''}!
-          </Typography>
-          <Typography>Your personalised recommendations will appear here.</Typography>
-        </Box>
-        <Tooltip title="Profile">
-          <IconButton onClick={() => navigate('/profile')} size="large" sx={{ ml: 2 }}>
-            <Avatar sx={{ bgcolor: 'primary.main' }}>
-              {userName?.[0]?.toUpperCase() || 'U'}
-            </Avatar>
-          </IconButton>
-        </Tooltip>
-      </Stack>
+    <Container >
+      <Box mt={4} mb={2}>
+        <Typography variant="h4">
+          Welcome Back{userName ? `, ${userName}` : ''}!
+        </Typography>
+        <Typography>Your personalised recommendations will appear here.</Typography>
+      </Box>
 
       {loading ? (
         <Box display="flex" justifyContent="center">
@@ -143,7 +133,7 @@ const Home = () => {
       ) : (
         <Grid container spacing={3}>
           {courses.map((course) => {
-            const imageSrc = imageMap[course.image] || '/placeholder-image.jpg';
+            const imageSrc = imageMap[course.image];
             return (
               <Grid item xs={12} sm={6} md={4} key={course.id || course.title}>
                 <Link
@@ -153,7 +143,7 @@ const Home = () => {
                 >
                   <Card
                     sx={{
-                      height: 300,
+                      height: 350,
                       width: 500,
                       display: 'flex',
                       flexDirection: 'column',

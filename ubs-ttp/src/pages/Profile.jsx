@@ -16,14 +16,13 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Clear any tokens or session state here if needed
-    navigate('/'); // Redirect to login page or landing
+    navigate('/'); // Redirect to landing
   };
 
   return (
     <Container maxWidth="sm" sx={{ py: 5 }}>
       <Box display="flex" flexDirection="column" alignItems="center">
-        <Avatar sx={{ width: 100, height: 100, mb: 2 }}>U</Avatar>
+        <Avatar sx={{ width: 100, height: 100, mb: 2, bgcolor: 'primary.main' }}>{userName?.[0]?.toUpperCase() || 'U'}</Avatar>
         <Typography variant="h5">{userName}</Typography>
         <Typography variant="body1" color="text.secondary">{userEmail}</Typography>
 
