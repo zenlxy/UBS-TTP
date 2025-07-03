@@ -7,8 +7,8 @@ const courses = [
     tags: ["web", "frontend", "html", "css", "javascript"],
     image: "course1.jpg",
     rating: "4.5",
-    students: "1500",
-    duration: "10 hours",
+    students: "923",
+    duration: "7 hours",
     sections: [
       {
         title: 'HTML Foundations',
@@ -82,8 +82,8 @@ const courses = [
     category: "Web Development",
     tags: ["web", "backend", "nodejs", "express", "mongodb"],
     image: "course2.jpg",
-    rating: "4.5",
-    students: "1500",
+    rating: "4.8",
+    students: "1994",
     duration: "10 hours",
     sections: [
       {
@@ -158,9 +158,9 @@ const courses = [
     category: "Mobile Apps",
     tags: ["mobile", "react native", "javascript"],
     image: "course3.jpg",
-    rating: "4.5",
-    students: "1500",
-    duration: "10 hours",
+    rating: "4.9",
+    students: "701",
+    duration: "9 hours",
     sections: [
       {
         title: 'Getting Started with React Native',
@@ -213,8 +213,8 @@ const courses = [
     category: "Mobile Apps",
     tags: ["mobile", "flutter", "cross-platform"],
     image: "course4.jpg",
-    rating: "4.5",
-    students: "1500",
+    rating: "4.7",
+    students: "2016",
     duration: "10 hours",
     sections: [
       {
@@ -268,9 +268,9 @@ const courses = [
     category: "Data Science",
     tags: ["data", "python", "pandas", "matplotlib"],
     image: "course5.jpg",
-    rating: "4.5",
-    students: "1500",
-    duration: "10 hours",
+    rating: "4.4",
+    students: "165",
+    duration: "6 hours",
     sections: [
       {
         title: 'Python for Data Science',
@@ -324,7 +324,7 @@ const courses = [
     tags: ["data cleaning", "visualization", "pandas", "seaborn"],
     image: "course6.jpg",
     rating: "4.2",
-    students: "521",
+    students: "5711",
     duration: "8 hours",
     sections: [
       {
@@ -433,8 +433,8 @@ const courses = [
     category: "AI/ML",
     tags: ["deep learning", "tensorflow", "neural networks"],
     image: "course8.jpg",
-    rating: "4.4",
-    students: "923",
+    rating: "4.6",
+    students: "521",
     duration: "9 hours",
     sections: [
       {
@@ -488,9 +488,9 @@ const courses = [
     category: "DevOps",
     tags: ["devops", "docker", "ci/cd"],
     image: "course9.jpg",
-    rating: "4.5",
-    students: "1500",
-    duration: "10 hours",
+    rating: "4.3",
+    students: "606",
+    duration: "8 hours",
     sections: [
       {
         title: 'DevOps Fundamentals',
@@ -545,8 +545,8 @@ const courses = [
     tags: ["aws", "cloud", "infrastructure"],
     image: "course10.jpg",
     rating: "4.5",
-    students: "1500",
-    duration: "10 hours",
+    students: "888",
+    duration: "9 hours",
     sections: [
       {
         title: 'AWS Basics',
@@ -599,9 +599,9 @@ const courses = [
     category: "Cybersecurity",
     tags: ["security", "vulnerabilities", "threats"],
     image: "course11.jpg",
-    rating: "4.5",
-    students: "1500",
-    duration: "10 hours",
+    rating: "4.7",
+    students: "894",
+    duration: "5 hours",
     sections: [
       {
         title: 'Cybersecurity Basics',
@@ -654,9 +654,9 @@ const courses = [
     category: "Cybersecurity",
     tags: ["ethical hacking", "pentesting", "network security"],
     image: "course12.jpg",
-    rating: "4.5",
-    students: "1500",
-    duration: "10 hours",
+    rating: "4.7",
+    students: "111",
+    duration: "7 hours",
     sections: [
       {
         title: 'Penetration Testing Basics',
@@ -711,7 +711,7 @@ const courses = [
     image: "course13.jpg",
     rating: "4.6",
     students: "1520",
-    duration: "10 hours",
+    duration: "11 hours",
     sections: [
       {
         title: 'Introduction to UX',

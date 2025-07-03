@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Typography, Container, CircularProgress, Box, Grid, Card, CardMedia, CardContent } from '@mui/material';
+import { Typography, Container, CircularProgress, Box, Grid, Card, CardMedia, CardContent, Stack } from '@mui/material';
+import StarIcon from '@mui/icons-material/Star';
+import GroupIcon from '@mui/icons-material/Group';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
@@ -143,7 +146,7 @@ const Home = () => {
                 >
                   <Card
                     sx={{
-                      height: 350,
+                      height: 370,
                       width: 500,
                       display: 'flex',
                       flexDirection: 'column',
@@ -158,13 +161,37 @@ const Home = () => {
                       alt={course.title}
                       sx={{ objectFit: 'cover' }}
                     />
-                    <CardContent sx={{ flexGrow: 1 }}>
-                      <Typography variant="h6" gutterBottom color="textPrimary">
-                        {course.title}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        {course.description}
-                      </Typography>
+                    <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                      <Box>
+                        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={1}>
+                          <Typography variant="h6" color="textPrimary" fontWeight="bold">
+                            {course.title}
+                          </Typography>
+                          <Stack direction="row" alignItems="center" spacing={0.5}>
+                            <StarIcon fontSize="small" color="warning" />
+                            <Typography variant="body2" color="textSecondary">
+                              {course.rating}
+                            </Typography>
+                          </Stack>
+                        </Stack>
+                        <Typography variant="body2" color="textSecondary" gutterBottom>
+                          {course.description}
+                        </Typography>
+                      </Box>
+                      <Stack direction="row" justifyContent="space-between">
+                        <Stack direction="row" alignItems="center" spacing={0.5}>
+                          <GroupIcon fontSize="small" color="action" />
+                          <Typography variant="body2" color="textSecondary">
+                            {course.students}
+                          </Typography>
+                        </Stack>
+                        <Stack direction="row" alignItems="center" spacing={0.5}>
+                          <AccessTimeIcon fontSize="small" color="action" />
+                          <Typography variant="body2" color="textSecondary">
+                            {course.duration}
+                          </Typography>
+                        </Stack>
+                      </Stack>
                     </CardContent>
                   </Card>
                 </Link>
