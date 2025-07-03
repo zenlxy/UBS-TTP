@@ -708,7 +708,7 @@ const courses = [
     description: "Learn the basics of user experience design.",
     category: "UX/UI Design",
     tags: ["ux", "design thinking", "usability"],
-    image: "course3.jpg",
+    image: "course13.jpg",
     rating: "4.6",
     students: "1520",
     duration: "10 hours",
