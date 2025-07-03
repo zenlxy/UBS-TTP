@@ -1,15 +1,7 @@
-// Home.jsx
 import React, { useEffect, useState } from 'react';
-import {
-  Typography,
-  Container,
-  CircularProgress,
-  Box,
-  Grid,
-  Card,
-  CardMedia,
-  CardContent,
-} from '@mui/material';
+import { Typography, Container, CircularProgress, Box, Grid, Card, CardMedia, CardContent, Stack, IconButton, Tooltip, Avatar } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Link } from 'react-router-dom';
 
 // Import images from assets
@@ -26,6 +18,7 @@ const Home = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRecommendations = async () => {
@@ -93,10 +86,21 @@ const Home = () => {
 
   return (
     <Container>
-      <Typography variant="h4" sx={{ mt: 4 }}>
-        Welcome Back{userName ? `, ${userName}` : ''}!
-      </Typography>
-      <Typography mb={2}>Your personalised recommendations will appear here.</Typography>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mt={4} mb={2}>
+        <Box>
+          <Typography variant="h4">
+            Welcome Back{userName ? `, ${userName}` : ''}!
+          </Typography>
+          <Typography>Your personalised recommendations will appear here.</Typography>
+        </Box>
+        <Tooltip title="Profile">
+          <IconButton onClick={() => navigate('/profile')} size="large" sx={{ ml: 2 }}>
+            <Avatar sx={{ bgcolor: 'primary.main' }}>
+              {userName?.[0]?.toUpperCase() || 'U'}
+            </Avatar>
+          </IconButton>
+        </Tooltip>
+      </Stack>
 
       {loading ? (
         <Box display="flex" justifyContent="center">

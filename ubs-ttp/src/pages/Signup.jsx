@@ -118,6 +118,7 @@ export default function Signup() {
         const data = await response.json();
         console.log("Signup successful:", data);
         localStorage.setItem('userName', formData.name);
+        localStorage.setItem('userEmail', formData.email);
         localStorage.setItem('careerStage', formData.careerStage);
         localStorage.setItem('skills', JSON.stringify(formData.currentSkills)); 
         localStorage.setItem('availability', formData.timeAvailability.toString());
