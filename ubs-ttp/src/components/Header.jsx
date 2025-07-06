@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, IconButton, Avatar, Menu, MenuItem, Tooltip, Box } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate } from 'react-router-dom';
 
-const Header = () => {
+const Header = ({ onSidebarToggle }) => {
   const userName = localStorage.getItem('userName');
   const navigate = useNavigate();
 
@@ -13,9 +14,7 @@ const Header = () => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  const handleClose = () => setAnchorEl(null);
 
   const handleProfile = () => {
     navigate('/profile');
@@ -23,14 +22,17 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    localStorage.clear(); 
-    navigate('/'); 
+    localStorage.clear();
+    navigate('/');
     handleClose();
   };
 
   return (
     <AppBar position="sticky" color="default" elevation={1} sx={{ bgcolor: 'white' }}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
+        <IconButton edge="start" color="inherit" onClick={onSidebarToggle}>
+          <MenuIcon />
+        </IconButton>
         <Typography
           variant="h6"
           component="div"
@@ -51,15 +53,8 @@ const Header = () => {
             anchorEl={anchorEl}
             open={open}
             onClose={handleClose}
-            onClick={handleClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
           >
             <MenuItem onClick={handleProfile}>My Profile</MenuItem>
             <MenuItem onClick={handleLogout}>Log Out</MenuItem>
