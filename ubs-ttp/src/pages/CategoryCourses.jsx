@@ -14,7 +14,7 @@ const CategoryCourses = () => {
 
   const formatTitle = (slug) => {
     const titleMap = {
-      'all-courses': 'All Courses',
+      'all-courses': 'All',
       'web-development': 'Web Development',
       'mobile-apps': 'Mobile Apps',
       'data-science': 'Data Science',
