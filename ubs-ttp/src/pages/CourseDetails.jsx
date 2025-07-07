@@ -24,7 +24,7 @@ const CourseDetails = () => {
   const [results, setResults] = useState({});
 
   useEffect(() => {
-    fetch(`http://localhost:5001/api/courses/${id}`)
+    fetch(`http://localhost:5001/api/course/${id}`)
       .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch course data');
         return res.json();

@@ -1,91 +1,59 @@
 import React, { useEffect, useState } from 'react';
-import { Typography, Container, CircularProgress, Box, Grid, Card, CardMedia, CardContent, Stack } from '@mui/material';
+import { useParams, Link } from 'react-router-dom';
+import { Container, Typography, Grid, Card, CardMedia, CardContent, CircularProgress, Box, Stack, } from '@mui/material';
+import imageMap from '../assets/imageMap'; 
 import StarIcon from '@mui/icons-material/Star';
 import GroupIcon from '@mui/icons-material/Group';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import imageMap from '../assets/imageMap'; 
 
-const Home = () => {
-  const userName = localStorage.getItem('userName');
-  const [interests, setInterests] = useState(() => JSON.parse(localStorage.getItem('interests')) || []);
+const CategoryCourses = () => {
+  const { category } = useParams();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
+
+  const formatTitle = (slug) => {
+    const titleMap = {
+      'all-courses': 'All Courses',
+      'web-development': 'Web Development',
+      'mobile-apps': 'Mobile Apps',
+      'data-science': 'Data Science',
+      'ai-ml': 'AI/ML',
+      'devops': 'DevOps',
+      'cybersecurity': 'Cybersecurity',
+      'ui-ux-design': 'UI/UX Design',
+    };
+    return `${titleMap[slug] || slug.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())} Courses`;
+  };
 
   useEffect(() => {
-    const fetchRecommendations = async () => {
+    const fetchCategoryCourses = async () => {
       setLoading(true);
       setError(null);
 
-      if (!interests || interests.length === 0) {
-        setError('Please provide some interests to get recommendations.');
-        setLoading(false);
-        return;
-      }
-
-      const cacheKey = `recommendations_${interests.join('_')}`;
-      const cachedRecommendations = localStorage.getItem(cacheKey);
-
-      if (cachedRecommendations) {
-        try {
-          setCourses(JSON.parse(cachedRecommendations));
-          setLoading(false);
-          return;
-        } catch (parseError) {
-          console.error('Failed to parse cached recommendations:', parseError);
-        }
-      }
-
       try {
-        const response = await fetch('http://localhost:5001/api/recommendation', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ interests }),
-        });
-
+        const response = await fetch(`http://localhost:5001/api/category/${category}`);
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to fetch recommendations');
+          throw new Error('Failed to fetch courses');
         }
-
         const data = await response.json();
-        if (data.recommendedCourses) {
-          setCourses(data.recommendedCourses);
-          localStorage.setItem(cacheKey, JSON.stringify(data.recommendedCourses));
-        } else {
-          setCourses([]);
-        }
-      } catch (error) {
-        setError(error.message);
+        setCourses(data);
+      } catch (err) {
+        setError(err.message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRecommendations();
-  }, [interests]);
-
-  useEffect(() => {
-    const handleStorageChange = (event) => {
-      if (event.key === 'interests') {
-        setInterests(JSON.parse(event.newValue || '[]'));
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+    fetchCategoryCourses();
+  }, [category]);
 
   return (
-    <Container >
+    <Container>
       <Box mt={4} mb={2}>
-        <Typography variant="h4">
-          Welcome Back{userName ? `, ${userName}` : ''}!
+        <Typography variant="h4" gutterBottom>
+          {formatTitle(category)}
         </Typography>
-        <Typography>Your personalised recommendations will appear here.</Typography>
       </Box>
 
       {loading ? (
@@ -97,15 +65,13 @@ const Home = () => {
           {error}
         </Typography>
       ) : courses.length === 0 ? (
-        <Typography align="center">
-          No recommendations available. Try adding some interests!
-        </Typography>
+        <Typography align="center">No courses found for this category.</Typography>
       ) : (
         <Grid container spacing={3}>
           {courses.map((course) => {
-            const imageSrc = imageMap[course.image];
+            const imageSrc = imageMap[course.image] || '';
             return (
-              <Grid item xs={12} sm={6} md={4} key={course.id || course.title}>
+              <Grid item xs={12} sm={6} md={4} key={course.id}>
                 <Link
                   to={`/courses/${course.id}`}
                   style={{ textDecoration: 'none' }}
@@ -171,4 +137,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default CategoryCourses;

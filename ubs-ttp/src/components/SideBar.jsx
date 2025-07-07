@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  ListItemIcon,
-  Divider,
-  Typography,
-} from '@mui/material';
+import { Drawer, List, ListItem, ListItemButton, ListItemText, ListItemIcon, Divider, Typography } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import ChatIcon from '@mui/icons-material/Chat';
 import CategoryIcon from '@mui/icons-material/Category';
@@ -58,7 +49,7 @@ const Sidebar = ({ open, onClose }) => {
           'UI/UX Design',
         ].map((category) => (
           <ListItem disablePadding key={category}>
-            <ListItemButton onClick={() => handleNavigate(`/courses/${category.toLowerCase().replace(/ /g, '-')}`)}>
+            <ListItemButton onClick={() => handleNavigate(`/categories/${category.toLowerCase().replace(/[\s\/]+/g, '-')}`)}>
               <ListItemIcon><CategoryIcon /></ListItemIcon>
               <ListItemText primary={category} />
             </ListItemButton>

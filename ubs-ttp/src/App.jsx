@@ -8,6 +8,7 @@ import CourseDetails from './pages/CourseDetails';
 import Profile from './pages/Profile';
 import Header from './components/Header';
 import Sidebar from './components/SideBar';
+import CategoryCourses from './pages/CategoryCourses';
 
 function App() {
   const location = useLocation();
@@ -26,8 +27,9 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<Home />} />
-        <Route path="/courses/:id" element={<CourseDetails />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/courses/:id" element={<CourseDetails />} />
+        <Route path="/categories/:category" element={<CategoryCourses />} />
       </Routes>
     </>
   );
