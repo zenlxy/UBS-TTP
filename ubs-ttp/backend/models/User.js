@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
   learningGoals: { type: String },
   timeAvailability: { type: Number, default: 5 },
   areasOfInterest: { type: [String], default: [] },
+  enrolledCourses: [{ type: Number }],
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

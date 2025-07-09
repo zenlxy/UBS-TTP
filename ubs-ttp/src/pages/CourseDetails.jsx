@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Typography, Box, Button, Chip, Stack, Accordion, AccordionSummary, AccordionDetails, RadioGroup, FormControlLabel, Radio, Alert } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import StarIcon from '@mui/icons-material/Star';
@@ -8,51 +8,45 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-
 const CourseDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // State to store user answers per lesson per question
-  // Structure: { lessonIndex: { questionIndex: selectedOptionIndex, ... }, ... }
   const [answers, setAnswers] = useState({});
-
-  // State to store submitted results per lesson per question
-  // Structure: { lessonIndex: { questionIndex: boolean(correct/incorrect), ... }, ... }
   const [results, setResults] = useState({});
+
+  const userId = localStorage.getItem('userId'); // Assumes userId saved in localStorage
 
   useEffect(() => {
     fetch(`http://localhost:5001/api/course/${id}`)
-      .then((res) => {
+      .then(res => {
         if (!res.ok) throw new Error('Failed to fetch course data');
         return res.json();
       })
-      .then((data) => {
+      .then(data => {
         setCourse(data);
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(err => {
         setError(err.message);
         setLoading(false);
       });
   }, [id]);
 
   const handleOptionChange = (lessonIdx, questionIdx, optionIdx) => {
-    setAnswers((prev) => ({
+    setAnswers(prev => ({
       ...prev,
       [lessonIdx]: {
         ...prev[lessonIdx],
         [questionIdx]: optionIdx,
       },
     }));
-    // Clear previous result on change
-    setResults((prev) => {
-      if (
-        prev[lessonIdx] &&
-        prev[lessonIdx][questionIdx] !== undefined
-      ) {
+
+    setResults(prev => {
+      if (prev[lessonIdx] && prev[lessonIdx][questionIdx] !== undefined) {
         const newLessonResults = { ...prev[lessonIdx] };
         delete newLessonResults[questionIdx];
         return { ...prev, [lessonIdx]: newLessonResults };
@@ -61,18 +55,39 @@ const CourseDetails = () => {
     });
   };
 
-  const handleSubmit = (lessonIdx, questionIdx, correctAnswer) => {
+  const handleSubmitAnswer = (lessonIdx, questionIdx, correctAnswer) => {
     const userAnswer = answers[lessonIdx]?.[questionIdx];
-    if (userAnswer === undefined) return; // no answer selected
+    if (userAnswer === undefined) return;
 
     const isCorrect = userAnswer === correctAnswer;
-    setResults((prev) => ({
+    setResults(prev => ({
       ...prev,
       [lessonIdx]: {
         ...prev[lessonIdx],
         [questionIdx]: isCorrect,
       },
     }));
+  };
+
+  const handleEnroll = async () => {
+    if (!userId) {
+      alert('Please log in to enrol in courses.');
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:5001/api/enrol/${userId}/${id}`, {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to enrol');
+      }
+      alert('Successfully enrolled!');
+      // Optionally, you could update UI or redirect
+      navigate('/home');
+    } catch (err) {
+      alert(`Error enrolling: ${err.message}`);
+    }
   };
 
   if (loading) return <Typography>Loading...</Typography>;
@@ -85,7 +100,7 @@ const CourseDetails = () => {
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
-          onClick={() => window.location.href = '/home'}
+          onClick={() => navigate('/home')}
           sx={{ mb: 3, borderColor: 'primary.main', color: 'primary.main' }}
         >
           Back to Home
@@ -95,11 +110,12 @@ const CourseDetails = () => {
           <Typography variant="h4" gutterBottom>
             {course.title}
           </Typography>
-          <Button variant="contained" size="large">
-            Enroll Now
+          <Button variant="contained" size="large" onClick={handleEnroll}>
+            Enrol Now
           </Button>
         </Box>
       </Box>
+
       <Typography mb={2}>{course.description}</Typography>
 
       <Stack direction="row" spacing={1} mb={2}>
@@ -109,16 +125,16 @@ const CourseDetails = () => {
       </Stack>
 
       <Stack direction="row" spacing={3} mb={4}>
-      <Typography sx={{ display: 'flex'}}>
+        <Typography sx={{ display: 'flex' }}>
           <StarIcon sx={{ mr: 0.5 }} /> {course.rating || '4.5'} rating
-        </Typography >
-        <Typography sx={{ display: 'flex'}}>
+        </Typography>
+        <Typography sx={{ display: 'flex' }}>
           <PeopleIcon sx={{ mr: 0.5 }} /> {course.students || '923'} students
         </Typography>
-        <Typography sx={{ display: 'flex'}}>
+        <Typography sx={{ display: 'flex' }}>
           <AccessTimeIcon sx={{ mr: 0.5 }} /> {course.duration || '3 hours'}
         </Typography>
-        <Typography sx={{ display: 'flex'}}>
+        <Typography sx={{ display: 'flex' }}>
           <MenuBookIcon sx={{ mr: 0.5 }} />{' '}
           {course.lessons ||
             (course.sections
@@ -144,8 +160,7 @@ const CourseDetails = () => {
             </AccordionSummary>
             <AccordionDetails>
               {section.lessons.map((lesson, lidx) => {
-                // Calculate absolute lesson index to keep answers/results consistent across sections
-                const lessonIdx = sidx * 1000 + lidx; // just a unique id
+                const lessonIdx = sidx * 1000 + lidx;
 
                 return (
                   <Box key={lidx} mb={4}>
@@ -188,7 +203,7 @@ const CourseDetails = () => {
                                     value={String(oidx)}
                                     control={<Radio />}
                                     label={option}
-                                    disabled={result === true} // disable only if answer is correct
+                                    disabled={result === true}
                                   />
                                 ))}
                               </RadioGroup>
@@ -197,7 +212,7 @@ const CourseDetails = () => {
                                 variant="outlined"
                                 size="small"
                                 onClick={() =>
-                                  handleSubmit(lessonIdx, qidx, question.correct)
+                                  handleSubmitAnswer(lessonIdx, qidx, question.correct)
                                 }
                                 disabled={result !== undefined || userAnswer === undefined}
                                 sx={{ mt: 1 }}
@@ -206,10 +221,7 @@ const CourseDetails = () => {
                               </Button>
 
                               {result !== undefined && (
-                                <Alert
-                                  severity={result ? 'success' : 'error'}
-                                  sx={{ mt: 1 }}
-                                >
+                                <Alert severity={result ? 'success' : 'error'} sx={{ mt: 1 }}>
                                   {result ? 'Correct!' : 'Incorrect. Try again.'}
                                 </Alert>
                               )}
