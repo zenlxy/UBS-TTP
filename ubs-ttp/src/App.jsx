@@ -9,6 +9,7 @@ import Profile from './pages/Profile';
 import Header from './components/Header';
 import Sidebar from './components/SideBar';
 import CategoryCourses from './pages/CategoryCourses';
+import Chatbot from './pages/Chatbot';
 
 function App() {
   const location = useLocation();
@@ -30,6 +31,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/courses/:id" element={<CourseDetails />} />
         <Route path="/categories/:category" element={<CategoryCourses />} />
+        <Route path="/chatbot" element={<Chatbot />} />
       </Routes>
     </>
   );
