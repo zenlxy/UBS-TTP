@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Typography, Box, Button, Chip, Stack, Accordion, AccordionSummary, AccordionDetails, RadioGroup, FormControlLabel, Radio, Alert } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Container, Typography, Box, Button, Chip, Stack } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import StarIcon from '@mui/icons-material/Star';
 import PeopleIcon from '@mui/icons-material/People';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
+import ProgressBar from '../components/ProgressBar';
+import SectionCard from '../components/SectionCard';
+import SidebarSectionList from '../components/SidebarSectionList';
+import LessonContent from '../components/LessonContent';
 
 const CourseDetails = () => {
   const { id } = useParams();
@@ -15,10 +19,11 @@ const CourseDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [selectedSectionIdx, setSelectedSectionIdx] = useState(null);
   const [answers, setAnswers] = useState({});
   const [results, setResults] = useState({});
 
-  const userId = localStorage.getItem('userId'); // Assumes userId saved in localStorage
+  const userId = localStorage.getItem('userId');
 
   useEffect(() => {
     fetch(`http://localhost:5001/api/course/${id}`)
@@ -36,6 +41,12 @@ const CourseDetails = () => {
       });
   }, [id]);
 
+  const markLessonAsComplete = (sectionIdx, lessonIdx) => {
+    const updatedSections = [...course.sections];
+    updatedSections[sectionIdx].lessons[lessonIdx].completed = true;
+    setCourse({ ...course, sections: updatedSections });
+  };
+
   const handleOptionChange = (lessonIdx, questionIdx, optionIdx) => {
     setAnswers(prev => ({
       ...prev,
@@ -46,10 +57,10 @@ const CourseDetails = () => {
     }));
 
     setResults(prev => {
-      if (prev[lessonIdx] && prev[lessonIdx][questionIdx] !== undefined) {
-        const newLessonResults = { ...prev[lessonIdx] };
-        delete newLessonResults[questionIdx];
-        return { ...prev, [lessonIdx]: newLessonResults };
+      if (prev[lessonIdx]?.[questionIdx] !== undefined) {
+        const updated = { ...prev[lessonIdx] };
+        delete updated[questionIdx];
+        return { ...prev, [lessonIdx]: updated };
       }
       return prev;
     });
@@ -70,20 +81,14 @@ const CourseDetails = () => {
   };
 
   const handleEnroll = async () => {
-    if (!userId) {
-      alert('Please log in to enrol in courses.');
-      return;
-    }
+    if (!userId) return alert('Please log in to enrol in courses.');
+
     try {
-      const response = await fetch(`http://localhost:5001/api/enrol/${userId}/${id}`, {
+      const res = await fetch(`http://localhost:5001/api/enrol/${userId}/${id}`, {
         method: 'POST',
       });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to enrol');
-      }
+      if (!res.ok) throw new Error((await res.json()).message || 'Failed to enrol');
       alert('Successfully enrolled!');
-      // Optionally, you could update UI or redirect
       navigate('/home');
     } catch (err) {
       alert(`Error enrolling: ${err.message}`);
@@ -94,26 +99,28 @@ const CourseDetails = () => {
   if (error) return <Typography color="error">{error}</Typography>;
   if (!course) return <Typography>No course found.</Typography>;
 
-  return (
-    <Container maxWidth="md" sx={{ py: 5 }}>
-      <Box mb={2}>
-        <Button
-          variant="outlined"
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate('/home')}
-          sx={{ mb: 3, borderColor: 'primary.main', color: 'primary.main' }}
-        >
-          Back to Home
-        </Button>
+  const totalLessons = course.sections.reduce((sum, sec) => sum + sec.lessons.length, 0);
+  const completedLessons = course.sections.reduce(
+    (sum, sec) => sum + sec.lessons.filter(lesson => lesson.completed).length,
+    0
+  );
 
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h4" gutterBottom>
-            {course.title}
-          </Typography>
-          <Button variant="contained" size="large" onClick={handleEnroll}>
-            Enrol Now
-          </Button>
-        </Box>
+  return (
+    <Container maxWidth="lg" sx={{ py: 5 }}>
+      <Button
+        variant="outlined"
+        startIcon={<ArrowBackIcon />}
+        onClick={() => navigate('/home')}
+        sx={{ mb: 3 }}
+      >
+        Back to Home
+      </Button>
+
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography variant="h4">{course.title}</Typography>
+        <Button variant="contained" size="large" onClick={handleEnroll}>
+          Enrol Now
+        </Button>
       </Box>
 
       <Typography mb={2}>{course.description}</Typography>
@@ -135,108 +142,53 @@ const CourseDetails = () => {
           <AccessTimeIcon sx={{ mr: 0.5 }} /> {course.duration || '3 hours'}
         </Typography>
         <Typography sx={{ display: 'flex' }}>
-          <MenuBookIcon sx={{ mr: 0.5 }} />{' '}
-          {course.lessons ||
-            (course.sections
-              ? course.sections.reduce((acc, sec) => acc + sec.lessons.length, 0)
-              : 'N/A')}{' '}
-          lessons
+          <MenuBookIcon sx={{ mr: 0.5 }} />
+          {totalLessons} lessons
         </Typography>
       </Stack>
 
-      <Box mb={4}>
-        <Typography variant="h6" gutterBottom>
-          Course Content
-        </Typography>
-        {course.sections.map((section, sidx) => (
-          <Accordion key={sidx}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography>{section.title}</Typography>
-              <Chip
-                label={`${section.lessons.length} lessons`}
-                size="small"
-                sx={{ ml: 2 }}
-              />
-            </AccordionSummary>
-            <AccordionDetails>
-              {section.lessons.map((lesson, lidx) => {
-                const lessonIdx = sidx * 1000 + lidx;
+      <ProgressBar completed={completedLessons} total={totalLessons} />
 
-                return (
-                  <Box key={lidx} mb={4}>
-                    <Typography variant="subtitle1" fontWeight="bold">
-                      {lesson.title}
-                    </Typography>
-
-                    {lesson.type === 'video' && (
-                      <Box
-                        component="iframe"
-                        src={lesson.url}
-                        title={lesson.title}
-                        width="100%"
-                        height="450px"
-                        sx={{ border: 'none', borderRadius: 1, mt: 1 }}
-                        allowFullScreen
-                      />
-                    )}
-
-                    {lesson.type === 'quiz' && (
-                      <Box mt={1} sx={{ pl: 2 }}>
-                        {lesson.questions.map((question, qidx) => {
-                          const userAnswer = answers[lessonIdx]?.[qidx];
-                          const result = results[lessonIdx]?.[qidx];
-
-                          return (
-                            <Box key={qidx} mb={3}>
-                              <Typography variant="subtitle2" fontWeight="bold">
-                                Q{qidx + 1}: {question.q}
-                              </Typography>
-                              <RadioGroup
-                                value={userAnswer !== undefined ? String(userAnswer) : ''}
-                                onChange={(e) =>
-                                  handleOptionChange(lessonIdx, qidx, Number(e.target.value))
-                                }
-                              >
-                                {question.options.map((option, oidx) => (
-                                  <FormControlLabel
-                                    key={oidx}
-                                    value={String(oidx)}
-                                    control={<Radio />}
-                                    label={option}
-                                    disabled={result === true}
-                                  />
-                                ))}
-                              </RadioGroup>
-
-                              <Button
-                                variant="outlined"
-                                size="small"
-                                onClick={() =>
-                                  handleSubmitAnswer(lessonIdx, qidx, question.correct)
-                                }
-                                disabled={result !== undefined || userAnswer === undefined}
-                                sx={{ mt: 1 }}
-                              >
-                                Submit Answer
-                              </Button>
-
-                              {result !== undefined && (
-                                <Alert severity={result ? 'success' : 'error'} sx={{ mt: 1 }}>
-                                  {result ? 'Correct!' : 'Incorrect. Try again.'}
-                                </Alert>
-                              )}
-                            </Box>
-                          );
-                        })}
-                      </Box>
-                    )}
-                  </Box>
-                );
-              })}
-            </AccordionDetails>
-          </Accordion>
-        ))}
-      </Box>
+      {selectedSectionIdx === null ? (
+        // Section overview
+        <Box display="grid" gridTemplateColumns="repeat(auto-fill, minmax(300px, 1fr))" gap={2}>
+          {course.sections.map((section, idx) => (
+            <SectionCard
+              key={idx}
+              section={section}
+              onClick={() => setSelectedSectionIdx(idx)}
+            />
+          ))}
+        </Box>
+      ) : (
+        // Detailed view of section
+        <Box display="flex">
+          <SidebarSectionList
+            sections={course.sections}
+            selectedIndex={selectedSectionIdx}
+            onSelect={setSelectedSectionIdx}
+          />
+          <Box flex={1}>
+            {course.sections[selectedSectionIdx].lessons.map((lesson, lidx) => {
+              const lessonIdx = selectedSectionIdx * 1000 + lidx;
+              return (
+                <LessonContent
+                  key={lidx}
+                  lesson={lesson}
+                  lessonIdx={lessonIdx}
+                  answers={answers}
+                  results={results}
+                  handleOptionChange={handleOptionChange}
+                  handleSubmitAnswer={handleSubmitAnswer}
+                  markLessonAsComplete={() =>
+                    markLessonAsComplete(selectedSectionIdx, lidx)
+                  }
+                />
+              );
+            })}
+          </Box>
+        </Box>
+      )}
     </Container>
   );
 };
