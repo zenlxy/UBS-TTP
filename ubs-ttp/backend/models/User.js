@@ -10,6 +10,17 @@ const userSchema = new mongoose.Schema({
   timeAvailability: { type: Number, default: 5 },
   areasOfInterest: { type: [String], default: [] },
   enrolledCourses: [{ type: Number }],
+  progress: [
+    {
+      courseId: { type: Number, required: true },
+      completedLessons: [
+        {
+          sectionIndex: { type: Number, required: true },
+          lessonIndex: { type: Number, required: true }
+        }
+      ]
+    }
+  ]
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

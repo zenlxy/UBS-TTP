@@ -24,8 +24,13 @@ const CourseDetails = () => {
   const [results, setResults] = useState({});
 
   const userId = localStorage.getItem('userId');
+  const [progressLoaded, setProgressLoaded] = useState(false);
 
+  // Fetch course data (once per course id)
   useEffect(() => {
+    setLoading(true);
+    setProgressLoaded(false);  // reset progress flag when course changes
+
     fetch(`http://localhost:5001/api/course/${id}`)
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch course data');
@@ -41,10 +46,66 @@ const CourseDetails = () => {
       });
   }, [id]);
 
-  const markLessonAsComplete = (sectionIdx, lessonIdx) => {
+  // Fetch user progress only once after course loads
+  useEffect(() => {
+    if (!userId || !course || progressLoaded) return;
+
+    const fetchProgress = async () => {
+      try {
+        const res = await fetch(`http://localhost:5001/api/progress/${userId}/${id}`);
+        if (!res.ok) throw new Error('Failed to fetch progress');
+        const completedLessons = await res.json();
+        console.log('Loaded completed lessons:', completedLessons);
+
+        const updatedSections = course.sections.map(section => ({
+          ...section,
+          lessons: section.lessons.map(lesson => ({ ...lesson })),
+        }));
+
+        completedLessons.forEach(({ sectionIndex, lessonIndex }) => {
+          if (
+            updatedSections[sectionIndex] &&
+            updatedSections[sectionIndex].lessons[lessonIndex]
+          ) {
+            updatedSections[sectionIndex].lessons[lessonIndex].completed = true;
+          }
+        });
+
+        setCourse(prev => ({ ...prev, sections: updatedSections }));
+        setProgressLoaded(true);
+      } catch (err) {
+        console.error('Error loading progress:', err);
+      }
+    };
+
+    fetchProgress();
+  }, [userId, course, id, progressLoaded]);
+
+  // Mark lesson complete and save to backend
+  const markLessonAsComplete = async (sectionIdx, lessonIdx) => {
+    console.log('Mark complete:', sectionIdx, lessonIdx);
+
+    if (!userId) return alert('Please log in to save progress.');
+
+    // Optimistic UI update
     const updatedSections = [...course.sections];
     updatedSections[sectionIdx].lessons[lessonIdx].completed = true;
     setCourse({ ...course, sections: updatedSections });
+
+    try {
+      const res = await fetch(`http://localhost:5001/api/progress/${userId}/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sectionIndex: sectionIdx, lessonIndex: lessonIdx }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to save progress');
+      }
+    } catch (err) {
+      alert(`Error saving progress: ${err.message}`);
+    }
   };
 
   const handleOptionChange = (lessonIdx, questionIdx, optionIdx) => {

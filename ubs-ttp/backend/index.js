@@ -8,6 +8,8 @@ const recommendationRoutes = require('./routes/recommendationRoutes');
 const courseRoutes = require('./routes/courseRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const enrolRoutes = require('./routes/enrolRoutes');
+const progressRoutes = require('./routes/progressRoutes');
+
 require('dotenv').config();
 
 const app = express();
@@ -32,6 +34,7 @@ app.use('/api/recommendation', recommendationRoutes);
 app.use('/api/course', courseRoutes);
 app.use('/api/category', categoryRoutes);
 app.use('/api/enrol', enrolRoutes);
+app.use('/api/progress', progressRoutes);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
