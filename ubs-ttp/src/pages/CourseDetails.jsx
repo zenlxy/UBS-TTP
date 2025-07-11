@@ -1,15 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-  Container,
-  Typography,
-  Box,
-  Button,
-  Chip,
-  Stack,
-  Snackbar,
-  Alert,
-} from '@mui/material';
+import { Container, Typography, Box, Button, Chip, Stack, Snackbar, Alert } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import StarIcon from '@mui/icons-material/Star';
 import PeopleIcon from '@mui/icons-material/People';

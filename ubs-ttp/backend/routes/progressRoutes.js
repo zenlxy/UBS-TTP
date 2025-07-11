@@ -4,7 +4,6 @@ const User = require('../models/User');
 
 router.get('/:userId/:courseId', async (req, res) => {
   const { userId, courseId } = req.params;
-  console.log('Saving progress:', sectionIndex, lessonIndex);
 
   try {
     const user = await User.findById(userId);
