@@ -45,4 +45,24 @@ router.post('/:userId/:courseId', async (req, res) => {
   }
 });
 
+router.get('/check/:userId/:courseId', async (req, res) => {
+  const { userId, courseId } = req.params;
+  const numericCourseId = Number(courseId);
+
+  if (isNaN(numericCourseId)) {
+    return res.status(400).json({ message: 'Invalid course ID' });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const isEnrolled = user.enrolledCourses.includes(numericCourseId);
+    res.json({ enrolled: isEnrolled });
+  } catch (err) {
+    console.error('Error checking enrolment:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;

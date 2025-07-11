@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Typography, Box, Button, Chip, Stack } from '@mui/material';
+import {
+  Container,
+  Typography,
+  Box,
+  Button,
+  Chip,
+  Stack,
+  Snackbar,
+  Alert,
+} from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import StarIcon from '@mui/icons-material/Star';
 import PeopleIcon from '@mui/icons-material/People';
@@ -24,12 +33,14 @@ const CourseDetails = () => {
   const [results, setResults] = useState({});
 
   const userId = localStorage.getItem('userId');
+  const [isEnrolled, setIsEnrolled] = useState(false);
   const [progressLoaded, setProgressLoaded] = useState(false);
 
-  // Fetch course data (once per course id)
+  const [showEnrollSnackbar, setShowEnrollSnackbar] = useState(false);
+
   useEffect(() => {
     setLoading(true);
-    setProgressLoaded(false);  // reset progress flag when course changes
+    setProgressLoaded(false);
 
     fetch(`http://localhost:5001/api/course/${id}`)
       .then(res => {
@@ -46,16 +57,31 @@ const CourseDetails = () => {
       });
   }, [id]);
 
-  // Fetch user progress only once after course loads
   useEffect(() => {
-    if (!userId || !course || progressLoaded) return;
+    if (!userId || !course) return;
+
+    fetch(`http://localhost:5001/api/enrol/${userId}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch enrolled courses');
+        return res.json();
+      })
+      .then(data => {
+        const enrolled = data.some(c => String(c.id) === String(id));
+        setIsEnrolled(enrolled);
+      })
+      .catch(err => {
+        console.error('Error checking enrolment:', err);
+      });
+  }, [userId, course, id]);
+
+  useEffect(() => {
+    if (!userId || !course || progressLoaded || !isEnrolled) return;
 
     const fetchProgress = async () => {
       try {
         const res = await fetch(`http://localhost:5001/api/progress/${userId}/${id}`);
         if (!res.ok) throw new Error('Failed to fetch progress');
         const completedLessons = await res.json();
-        console.log('Loaded completed lessons:', completedLessons);
 
         const updatedSections = course.sections.map(section => ({
           ...section,
@@ -79,34 +105,7 @@ const CourseDetails = () => {
     };
 
     fetchProgress();
-  }, [userId, course, id, progressLoaded]);
-
-  // Mark lesson complete and save to backend
-  const markLessonAsComplete = async (sectionIdx, lessonIdx) => {
-    console.log('Mark complete:', sectionIdx, lessonIdx);
-
-    if (!userId) return alert('Please log in to save progress.');
-
-    // Optimistic UI update
-    const updatedSections = [...course.sections];
-    updatedSections[sectionIdx].lessons[lessonIdx].completed = true;
-    setCourse({ ...course, sections: updatedSections });
-
-    try {
-      const res = await fetch(`http://localhost:5001/api/progress/${userId}/${id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sectionIndex: sectionIdx, lessonIndex: lessonIdx }),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || 'Failed to save progress');
-      }
-    } catch (err) {
-      alert(`Error saving progress: ${err.message}`);
-    }
-  };
+  }, [userId, course, id, progressLoaded, isEnrolled]);
 
   const handleOptionChange = (lessonIdx, questionIdx, optionIdx) => {
     setAnswers(prev => ({
@@ -141,6 +140,26 @@ const CourseDetails = () => {
     }));
   };
 
+  const markLessonAsComplete = async (sectionIdx, lessonIdx) => {
+    if (!userId) return alert('Please log in to save progress.');
+
+    const updatedSections = [...course.sections];
+    updatedSections[sectionIdx].lessons[lessonIdx].completed = true;
+    setCourse({ ...course, sections: updatedSections });
+
+    try {
+      const res = await fetch(`http://localhost:5001/api/progress/${userId}/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sectionIndex: sectionIdx, lessonIndex: lessonIdx }),
+      });
+
+      if (!res.ok) throw new Error('Failed to save progress');
+    } catch (err) {
+      alert(`Error saving progress: ${err.message}`);
+    }
+  };
+
   const handleEnroll = async () => {
     if (!userId) return alert('Please log in to enrol in courses.');
 
@@ -150,9 +169,17 @@ const CourseDetails = () => {
       });
       if (!res.ok) throw new Error((await res.json()).message || 'Failed to enrol');
       alert('Successfully enrolled!');
-      navigate('/home');
+      setIsEnrolled(true);
     } catch (err) {
       alert(`Error enrolling: ${err.message}`);
+    }
+  };
+
+  const handleSectionClick = idx => {
+    if (!isEnrolled) {
+      setShowEnrollSnackbar(true);
+    } else {
+      setSelectedSectionIdx(idx);
     }
   };
 
@@ -179,9 +206,15 @@ const CourseDetails = () => {
 
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Typography variant="h4">{course.title}</Typography>
-        <Button variant="contained" size="large" onClick={handleEnroll}>
-          Enrol Now
-        </Button>
+        {!isEnrolled ? (
+          <Button variant="contained" size="large" onClick={handleEnroll}>
+            Enrol Now
+          </Button>
+        ) : (
+          <Button variant="outlined" disabled>
+            You are enrolled
+          </Button>
+        )}
       </Box>
 
       <Typography mb={2}>{course.description}</Typography>
@@ -211,23 +244,17 @@ const CourseDetails = () => {
       <ProgressBar completed={completedLessons} total={totalLessons} />
 
       {selectedSectionIdx === null ? (
-        // Section overview
         <Box display="grid" gridTemplateColumns="repeat(auto-fill, minmax(300px, 1fr))" gap={2}>
           {course.sections.map((section, idx) => (
-            <SectionCard
-              key={idx}
-              section={section}
-              onClick={() => setSelectedSectionIdx(idx)}
-            />
+            <SectionCard key={idx} section={section} onClick={() => handleSectionClick(idx)} />
           ))}
         </Box>
       ) : (
-        // Detailed view of section
         <Box display="flex">
           <SidebarSectionList
             sections={course.sections}
             selectedIndex={selectedSectionIdx}
-            onSelect={setSelectedSectionIdx}
+            onSelect={handleSectionClick}
           />
           <Box flex={1}>
             {course.sections[selectedSectionIdx].lessons.map((lesson, lidx) => {
@@ -250,6 +277,17 @@ const CourseDetails = () => {
           </Box>
         </Box>
       )}
+
+      <Snackbar
+        open={showEnrollSnackbar}
+        autoHideDuration={3000}
+        onClose={() => setShowEnrollSnackbar(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setShowEnrollSnackbar(false)} severity="info" sx={{ width: '100%' }}>
+          Please enrol in the course to begin learning.
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
