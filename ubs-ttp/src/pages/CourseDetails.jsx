@@ -189,10 +189,10 @@ const CourseDetails = () => {
       <Button
         variant="outlined"
         startIcon={<ArrowBackIcon />}
-        onClick={() => navigate('/home')}
+        onClick={() => navigate(-1)}
         sx={{ mb: 3 }}
       >
-        Back to Home
+        Back 
       </Button>
 
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
