@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, TextField, IconButton, Stack } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import ReactMarkdown from 'react-markdown'; 
 
 const Chatbot = () => {
   const [messages, setMessages] = useState([
@@ -9,14 +10,29 @@ const Chatbot = () => {
   const [input, setInput] = useState('');
   const chatEndRef = useRef(null);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
-
+  
     const userMessage = { from: 'user', text: input.trim() };
-    const botReply = { from: 'bot', text: "This is a placeholder reply" };
-
-    setMessages((prev) => [...prev, userMessage, botReply]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput('');
+  
+    try {
+      const res = await fetch('http://localhost:5001/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userMessage: input.trim() }),
+      });
+  
+      const data = await res.json();
+      const botReply = { from: 'bot', text: data.reply };
+      setMessages((prev) => [...prev, botReply]);
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        { from: 'bot', text: 'Oops! Something went wrong.' },
+      ]);
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -36,10 +52,6 @@ const Chatbot = () => {
         overflow: 'hidden',
       }}
     >
-      <Typography variant="h5" fontWeight="bold" mb={2}>
-        Chat with LearnBot
-      </Typography>
-
       <Box
         sx={{
             height: 'calc(100% - 100px)',
@@ -60,12 +72,12 @@ const Chatbot = () => {
                 bgcolor: msg.from === 'user' ? '#7b2ff7' : '#e0e0e0',
                 color: msg.from === 'user' ? 'white' : 'black',
                 px: 2,
-                py: 1,
-                borderRadius: 2,
+                borderRadius: 7,
                 maxWidth: '75%',
+                whiteSpace: 'pre-wrap',  
               }}
             >
-              {msg.text}
+              <ReactMarkdown>{msg.text}</ReactMarkdown>
             </Typography>
           </Box>
         ))}

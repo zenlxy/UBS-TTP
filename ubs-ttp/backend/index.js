@@ -9,6 +9,7 @@ const courseRoutes = require('./routes/courseRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const enrolRoutes = require('./routes/enrolRoutes');
 const progressRoutes = require('./routes/progressRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 require('dotenv').config();
 
@@ -35,6 +36,7 @@ app.use('/api/course', courseRoutes);
 app.use('/api/category', categoryRoutes);
 app.use('/api/enrol', enrolRoutes);
 app.use('/api/progress', progressRoutes);
+app.use('/api/chat', chatRoutes);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
