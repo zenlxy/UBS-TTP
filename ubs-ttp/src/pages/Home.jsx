@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Container, CircularProgress, Box, Grid, Card, CardMedia, CardContent, Stack } from '@mui/material';
+import {
+  Typography,
+  Container,
+  CircularProgress,
+  Box,
+  Grid,
+  Card,
+  CardMedia,
+  CardContent,
+  Stack,
+  Chip,
+} from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import GroupIcon from '@mui/icons-material/Group';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -13,6 +24,8 @@ const Home = () => {
 
   // State for enrolled courses
   const [enrolledCourses, setEnrolledCourses] = useState([]);
+  // Track which enrolled courses are fully completed
+  const [completedCourseIds, setCompletedCourseIds] = useState([]);
   // State for recommended courses
   const [recommendedCourses, setRecommendedCourses] = useState([]);
 
@@ -22,7 +35,7 @@ const Home = () => {
   const [errorEnrolled, setErrorEnrolled] = useState(null);
   const [errorRecommended, setErrorRecommended] = useState(null);
 
-  // Fetch enrolled courses
+  // Fetch enrolled courses and check completion status
   useEffect(() => {
     if (!userId) {
       setErrorEnrolled('User not logged in.');
@@ -39,6 +52,34 @@ const Home = () => {
         if (!res.ok) throw new Error('Failed to fetch enrolled courses');
         const data = await res.json();
         setEnrolledCourses(data);
+
+        // Check which enrolled courses are completed
+        const completedIds = [];
+
+        for (const course of data) {
+          if (!course.sections) continue; // safety check
+
+          // Calculate total lessons in the course
+          const totalLessons = course.sections.reduce(
+            (sum, sec) => sum + sec.lessons.length,
+            0
+          );
+
+          // Fetch progress for this course
+          const progressRes = await fetch(
+            `http://localhost:5001/api/progress/${userId}/${course.id}`
+          );
+          if (!progressRes.ok) continue;
+
+          const progressData = await progressRes.json(); // [{ sectionIndex, lessonIndex }, ...]
+
+          // If completed lessons count matches total lessons, mark course as completed
+          if (progressData.length === totalLessons) {
+            completedIds.push(course.id);
+          }
+        }
+
+        setCompletedCourseIds(completedIds);
       } catch (err) {
         setErrorEnrolled(err.message);
       } finally {
@@ -68,8 +109,8 @@ const Home = () => {
         try {
           const cachedData = JSON.parse(cachedRecommendations);
           // Filter out courses that are already enrolled
-          const filteredCourses = cachedData.filter(course =>
-            !enrolledCourses.some(enrolled => enrolled.id === course.id)
+          const filteredCourses = cachedData.filter(
+            course => !enrolledCourses.some(enrolled => enrolled.id === course.id)
           );
           setRecommendedCourses(filteredCourses);
           setLoadingRecommended(false);
@@ -95,8 +136,8 @@ const Home = () => {
 
         if (data.recommendedCourses) {
           // Filter out enrolled courses
-          const filtered = data.recommendedCourses.filter(course =>
-            !enrolledCourses.some(enrolled => enrolled.id === course.id)
+          const filtered = data.recommendedCourses.filter(
+            course => !enrolledCourses.some(enrolled => enrolled.id === course.id)
           );
           setRecommendedCourses(filtered);
           localStorage.setItem(cacheKey, JSON.stringify(data.recommendedCourses));
@@ -131,26 +172,45 @@ const Home = () => {
             <CircularProgress />
           </Box>
         ) : errorEnrolled ? (
-          <Typography color="error" align="center">{errorEnrolled}</Typography>
+          <Typography color="error" align="center">
+            {errorEnrolled}
+          </Typography>
         ) : enrolledCourses.length === 0 ? (
-          <Typography align="center" mb={2}>You have not enrolled in any courses yet.</Typography>
+          <Typography align="center" mb={2}>
+            You have not enrolled in any courses yet.
+          </Typography>
         ) : (
           <Grid container spacing={3}>
-            {enrolledCourses.map((course) => {
+            {enrolledCourses.map(course => {
               const imageSrc = imageMap[course.image];
+              const isCompleted = completedCourseIds.includes(course.id);
+
               return (
                 <Grid item xs={12} sm={6} md={4} key={course.id}>
-                  <Link to={`/courses/${course.id}`} style={{ textDecoration: 'none' }} aria-label={`Go to details for ${course.title}`}>
+                  <Link
+                    to={`/courses/${course.id}`}
+                    style={{ textDecoration: 'none' }}
+                    aria-label={`Go to details for ${course.title}`}
+                  >
                     <Card
                       sx={{
                         height: 370,
                         width: 500,
                         display: 'flex',
                         flexDirection: 'column',
+                        position: 'relative',
                         cursor: 'pointer',
                         '&:hover': { boxShadow: 6 },
                       }}
                     >
+                      {isCompleted && (
+                        <Chip
+                          label="Completed"
+                          color="success"
+                          size="small"
+                          sx={{ position: 'absolute', top: 8, right: 8 }}
+                        />
+                      )}
                       <CardMedia
                         component="img"
                         height="200"
@@ -158,9 +218,21 @@ const Home = () => {
                         alt={course.title}
                         sx={{ objectFit: 'cover' }}
                       />
-                      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                      <CardContent
+                        sx={{
+                          flexGrow: 1,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'space-between',
+                        }}
+                      >
                         <Box>
-                          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={1}>
+                          <Stack
+                            direction="row"
+                            alignItems="center"
+                            justifyContent="space-between"
+                            mb={1}
+                          >
                             <Typography variant="h6" color="textPrimary" fontWeight="bold">
                               {course.title}
                             </Typography>
@@ -218,7 +290,7 @@ const Home = () => {
           </Typography>
         ) : (
           <Grid container spacing={3}>
-            {recommendedCourses.map((course) => {
+            {recommendedCourses.map(course => {
               const imageSrc = imageMap[course.image];
               return (
                 <Grid item xs={12} sm={6} md={4} key={course.id}>
@@ -244,9 +316,21 @@ const Home = () => {
                         alt={course.title}
                         sx={{ objectFit: 'cover' }}
                       />
-                      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                      <CardContent
+                        sx={{
+                          flexGrow: 1,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'space-between',
+                        }}
+                      >
                         <Box>
-                          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={1}>
+                          <Stack
+                            direction="row"
+                            alignItems="center"
+                            justifyContent="space-between"
+                            mb={1}
+                          >
                             <Typography variant="h6" color="textPrimary" fontWeight="bold">
                               {course.title}
                             </Typography>
