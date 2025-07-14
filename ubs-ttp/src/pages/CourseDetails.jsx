@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Typography, Box, Button, Chip, Stack, Snackbar, Alert } from '@mui/material';
+import {
+  Container,
+  Typography,
+  Box,
+  Button,
+  Chip,
+  Stack,
+  Snackbar,
+  Alert,
+} from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import StarIcon from '@mui/icons-material/Star';
 import PeopleIcon from '@mui/icons-material/People';
@@ -15,6 +24,7 @@ import LessonContent from '../components/LessonContent';
 const CourseDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,27 +32,24 @@ const CourseDetails = () => {
   const [selectedSectionIdx, setSelectedSectionIdx] = useState(null);
   const [answers, setAnswers] = useState({});
   const [results, setResults] = useState({});
-
-  const userId = localStorage.getItem('userId');
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [progressLoaded, setProgressLoaded] = useState(false);
-
   const [showEnrollSnackbar, setShowEnrollSnackbar] = useState(false);
+
+  const userId = localStorage.getItem('userId');
 
   useEffect(() => {
     setLoading(true);
-    setProgressLoaded(false);
-
     fetch(`http://localhost:5001/api/course/${id}`)
-      .then(res => {
+      .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch course data');
         return res.json();
       })
-      .then(data => {
+      .then((data) => {
         setCourse(data);
         setLoading(false);
       })
-      .catch(err => {
+      .catch((err) => {
         setError(err.message);
         setLoading(false);
       });
@@ -52,15 +59,15 @@ const CourseDetails = () => {
     if (!userId || !course) return;
 
     fetch(`http://localhost:5001/api/enrol/${userId}`)
-      .then(res => {
+      .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch enrolled courses');
         return res.json();
       })
-      .then(data => {
-        const enrolled = data.some(c => String(c.id) === String(id));
+      .then((data) => {
+        const enrolled = data.some((c) => String(c.id) === String(id));
         setIsEnrolled(enrolled);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error('Error checking enrolment:', err);
       });
   }, [userId, course, id]);
@@ -74,9 +81,9 @@ const CourseDetails = () => {
         if (!res.ok) throw new Error('Failed to fetch progress');
         const completedLessons = await res.json();
 
-        const updatedSections = course.sections.map(section => ({
+        const updatedSections = course.sections.map((section) => ({
           ...section,
-          lessons: section.lessons.map(lesson => ({ ...lesson })),
+          lessons: section.lessons.map((lesson) => ({ ...lesson })),
         }));
 
         completedLessons.forEach(({ sectionIndex, lessonIndex }) => {
@@ -88,7 +95,7 @@ const CourseDetails = () => {
           }
         });
 
-        setCourse(prev => ({ ...prev, sections: updatedSections }));
+        setCourse((prev) => ({ ...prev, sections: updatedSections }));
         setProgressLoaded(true);
       } catch (err) {
         console.error('Error loading progress:', err);
@@ -99,7 +106,7 @@ const CourseDetails = () => {
   }, [userId, course, id, progressLoaded, isEnrolled]);
 
   const handleOptionChange = (lessonIdx, questionIdx, optionIdx) => {
-    setAnswers(prev => ({
+    setAnswers((prev) => ({
       ...prev,
       [lessonIdx]: {
         ...prev[lessonIdx],
@@ -107,7 +114,7 @@ const CourseDetails = () => {
       },
     }));
 
-    setResults(prev => {
+    setResults((prev) => {
       if (prev[lessonIdx]?.[questionIdx] !== undefined) {
         const updated = { ...prev[lessonIdx] };
         delete updated[questionIdx];
@@ -122,7 +129,7 @@ const CourseDetails = () => {
     if (userAnswer === undefined) return;
 
     const isCorrect = userAnswer === correctAnswer;
-    setResults(prev => ({
+    setResults((prev) => ({
       ...prev,
       [lessonIdx]: {
         ...prev[lessonIdx],
@@ -166,12 +173,18 @@ const CourseDetails = () => {
     }
   };
 
-  const handleSectionClick = idx => {
+  const handleSectionClick = (idx) => {
     if (!isEnrolled) {
       setShowEnrollSnackbar(true);
     } else {
       setSelectedSectionIdx(idx);
     }
+  };
+
+  const isSectionLocked = (sectionIdx) => {
+    if (sectionIdx === 0) return false;
+    const prevSection = course.sections[sectionIdx - 1];
+    return prevSection.lessons.some((lesson) => !lesson.completed);
   };
 
   if (loading) return <Typography>Loading...</Typography>;
@@ -180,9 +193,21 @@ const CourseDetails = () => {
 
   const totalLessons = course.sections.reduce((sum, sec) => sum + sec.lessons.length, 0);
   const completedLessons = course.sections.reduce(
-    (sum, sec) => sum + sec.lessons.filter(lesson => lesson.completed).length,
+    (sum, sec) => sum + sec.lessons.filter((lesson) => lesson.completed).length,
     0
   );
+
+  const accessMap = course.sections.map((section, idx) => {
+    if (idx === 0) return true; // First section always accessible
+
+    const prevSection = course.sections[idx - 1];
+    const allPrevLessonsCompleted = prevSection.lessons.every(lesson => lesson.completed);
+    return allPrevLessonsCompleted;
+  });
+
+  const handleLockedClick = () => {
+    setShowEnrollSnackbar(true); // reuse or create a new popup
+  };
 
   return (
     <Container maxWidth="lg" sx={{ py: 5 }}>
@@ -192,7 +217,7 @@ const CourseDetails = () => {
         onClick={() => navigate(-1)}
         sx={{ mb: 3 }}
       >
-        Back 
+        Back
       </Button>
 
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
@@ -237,7 +262,13 @@ const CourseDetails = () => {
       {selectedSectionIdx === null ? (
         <Box display="grid" gridTemplateColumns="repeat(auto-fill, minmax(300px, 1fr))" gap={2}>
           {course.sections.map((section, idx) => (
-            <SectionCard key={idx} section={section} onClick={() => handleSectionClick(idx)} />
+            <SectionCard
+              key={idx}
+              section={section}
+              onClick={() => handleSectionClick(idx)}
+              isLocked={isSectionLocked(idx)}
+              isSelected={selectedSectionIdx === idx}
+            />
           ))}
         </Box>
       ) : (
@@ -246,6 +277,8 @@ const CourseDetails = () => {
             sections={course.sections}
             selectedIndex={selectedSectionIdx}
             onSelect={handleSectionClick}
+            accessMap={accessMap}
+            onLockedClick={handleLockedClick}
           />
           <Box flex={1}>
             {course.sections[selectedSectionIdx].lessons.map((lesson, lidx) => {
