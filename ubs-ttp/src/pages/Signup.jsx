@@ -117,6 +117,7 @@ export default function Signup() {
       if (response.ok) {
         const data = await response.json();
         console.log("Signup successful:", data);
+        localStorage.setItem('userId', data.id);
         localStorage.setItem('userName', formData.name);
         localStorage.setItem('userEmail', formData.email);
         localStorage.setItem('careerStage', formData.careerStage);
